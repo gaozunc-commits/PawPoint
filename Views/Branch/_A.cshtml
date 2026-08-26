@@ -1,0 +1,84 @@
+@model X.PagedList.IPagedList<Branch>
+@using X.PagedList.Mvc.Core
+
+@{
+    string name = Context.Request.Query["name"]!;
+    string sort = Context.Request.Query["sort"]!;
+    string dir = Context.Request.Query["dir"]!;
+
+    var ajaxOptions = new AjaxOptions
+    {
+        HttpMethod = "get",
+        UpdateTargetId = "target",
+        LoadingElementId = "#loader",
+    };
+
+    var options = PagedListRenderOptions.ClassicPlusFirstAndLast;
+    Func<string, string> SortClass = col => sort == col ? (dir == "des" ? "des" : "asc") : "";
+    Func<string, string> SortDir = col => sort == col && dir != "des" ? "des" : "asc";
+}
+
+<p style="margin: 8px 0; color: #555;"><b>@Model.TotalItemCount</b> branch(es) registered</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&sort=Name&dir=@SortDir("Name")" class="@SortClass("Name")">Branch Name</a>
+            </th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&sort=Address&dir=@SortDir("Address")" class="@SortClass("Address")">Address</a>
+            </th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&sort=Phone&dir=@SortDir("Phone")" class="@SortClass("Phone")">Phone</a>
+            </th>
+            <th>Location GPS</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="6" style="text-align: center; color: #777; padding: 15px;">No branches found.</td></tr>
+        }
+        @foreach (var x in Model)
+        {
+            <tr>
+                <td><b>@x.Id</b></td>
+                <td>@x.Name</td>
+                <td>@x.Address</td>
+                <td>@x.Phone</td>
+                <td>
+                    @if (x.Latitude.HasValue && x.Longitude.HasValue)
+                    {
+                        <a href="https://www.google.com/maps?q=@x.Latitude,@x.Longitude" target="_blank" style="color: #0275d8; text-decoration: none;">
+                            📍 @x.Latitude.Value.ToString("0.0000"), @x.Longitude.Value.ToString("0.0000")
+                        </a>
+                    }
+                    else
+                    {
+                        <span style="color: #999;">N/A</span>
+                    }
+                </td>
+                <td style="white-space: nowrap;">
+                    <button data-get="/Branch/Update/@x.Id">Update</button>
+                    <form method="post" action="/Branch/Delete/@x.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete branch @x.Name?');">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-top: 15px;">
+    @Html.PagedListPager(
+        Model,
+        p => $"?name={name}&sort={sort}&dir={dir}&page={p}",
+        PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(options, ajaxOptions)
+    )
+</div>

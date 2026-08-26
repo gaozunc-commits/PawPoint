@@ -1,0 +1,69 @@
+@model Dictionary<Staff, List<TimeOnly>>
+@{
+    ViewBag.Title = "Slot & Staff Availability Matrix";
+    var slots = (TimeOnly[])ViewBag.Slots;
+    DateOnly date = ViewBag.Date;
+    string branchId = ViewBag.SelectedBranchId;
+}
+
+<form method="get" style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+    <div>
+        <label><b>Branch:</b></label>
+        <select name="branchId" onchange="this.form.submit();" style="padding: 6px 10px;">
+            @if (ViewBag.Branches != null)
+            {
+                foreach (Branch b in ViewBag.Branches)
+                {
+                    <option value="@b.Id" selected="@(branchId == b.Id)">@b.Name</option>
+                }
+            }
+        </select>
+    </div>
+
+    <div>
+        <label><b>Date:</b></label>
+        <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" onchange="this.form.submit();" style="padding: 6px 10px;">
+    </div>
+
+    <button type="submit">Refresh Grid</button>
+    <button type="button" data-get="/Appointment/Book?branchId=@branchId">+ Book This Date</button>
+</form>
+
+<div style="margin-bottom: 12px; font-size: 14px;">
+    <span style="display: inline-block; width: 14px; height: 14px; background: #28a745; vertical-align: middle; border-radius: 2px;"></span> <b style="color: #28a745;">O = Available Slot</b> &nbsp;&nbsp;&nbsp;
+    <span style="display: inline-block; width: 14px; height: 14px; background: #dc3545; vertical-align: middle; border-radius: 2px;"></span> <b style="color: #dc3545;">X = Booked / Reserved</b>
+</div>
+
+<table class="table" style="text-align: center;">
+    <thead>
+        <tr>
+            <th style="text-align: left;">Staff Groomer</th>
+            @foreach (var s in slots)
+            {
+                <th>@s.ToString("hh:mm tt")</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="@(slots.Length + 1)" style="padding: 20px; color: #777;">No staff assigned to this branch.</td></tr>
+        }
+        @foreach (var row in Model)
+        {
+            <tr>
+                <td style="text-align: left; font-weight: bold;">
+                    <img src="/staff/@row.Key.PhotoURL" style="width: 28px; height: 28px; border-radius: 50%; vertical-align: middle; margin-right: 6px;" onerror="this.src='/photos/photo.jpg'">
+                    @row.Key.Name
+                </td>
+                @foreach (var s in slots)
+                {
+                    bool isFree = row.Value.Contains(s);
+                    <td style="background: @(isFree ? "#e8f5e9" : "#ffebee"); font-weight: bold; color: @(isFree ? "#28a745" : "#c62828");">
+                        @(isFree ? "O" : "X")
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

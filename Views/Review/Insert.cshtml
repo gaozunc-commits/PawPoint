@@ -1,0 +1,41 @@
+@model ReviewInsertVM
+@{
+    ViewBag.Title = "Leave a Grooming Review";
+    Appointment appt = ViewBag.Appointment;
+}
+
+<div style="background: #e8f5e9; border-left: 4px solid #28a745; padding: 12px 15px; margin-bottom: 20px; max-width: 550px; border-radius: 4px;">
+    <b>🎁 Loyalty Reward Notice:</b><br>
+    Earn <b>+10 loyalty points</b> instantly upon submitting your verified grooming feedback for <b>@(appt?.Pet?.Name ?? "your pet")</b>!
+</div>
+
+<form class="form" method="post" style="max-width: 550px;">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <input type="hidden" asp-for="AppointmentId">
+
+    <label>Appointment</label>
+    <div><b>#@Model.AppointmentId</b> (@(appt?.Date.ToString("yyyy-MM-dd")) with @(appt?.Staff?.Name))</div>
+    <span></span>
+
+    <label asp-for="Rating"></label>
+    <select asp-for="Rating" style="width: 100%; padding: 6px; font-size: 16px;">
+        <option value="5">★★★★★ (5 Stars - Outstanding)</option>
+        <option value="4">★★★★☆ (4 Stars - Very Good)</option>
+        <option value="3">★★★☆☆ (3 Stars - Average)</option>
+        <option value="2">★★☆☆☆ (2 Stars - Below Average)</option>
+        <option value="1">★☆☆☆☆ (1 Star - Poor)</option>
+    </select>
+    <span asp-validation-for="Rating"></span>
+
+    <label asp-for="Comment"></label>
+    <textarea asp-for="Comment" autofocus placeholder="How was your pet's grooming session? Share your experience with other pet owners..." style="width: 100%; height: 90px;"></textarea>
+    <span asp-validation-for="Comment"></span>
+
+    <section>
+        <button type="submit" style="background: #28a745; color: #fff;">Submit Review &amp; Claim +10 Points</button>
+        <button type="button" data-get="/Appointment/MyAppointments">Cancel</button>
+    </section>
+</form>
+
+<partial name="_ValidationScriptsPartial" />

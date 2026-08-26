@@ -1,0 +1,30 @@
+@model AppointmentStatusVM
+@{
+    ViewBag.Title = "Update Appointment Status";
+}
+
+<form class="form" method="post" style="max-width: 450px;">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <input type="hidden" asp-for="Id">
+
+    <label>Appointment</label>
+    <div style="font-weight: bold; font-size: 16px;">#@Model.Id</div>
+    <span></span>
+
+    <label asp-for="Status"></label>
+    <select asp-for="Status" style="width: 100%; padding: 6px;">
+        <option value="Pending">Pending</option>
+        <option value="Confirmed">Confirmed</option>
+        <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+    </select>
+    <span asp-validation-for="Status"></span>
+
+    <section>
+        <button type="submit">Update Status</button>
+        <button type="button" data-get="/Appointment/StaffIndex">Cancel</button>
+    </section>
+</form>
+
+<partial name="_ValidationScriptsPartial" />

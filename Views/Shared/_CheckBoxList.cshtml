@@ -1,0 +1,16 @@
+@model (string Name, dynamic List, bool IsBreak)
+
+<div class="checkbox-list">
+    @if (Model.List != null)
+    {
+        foreach (SelectListItem item in Model.List)
+        {
+            <label style="display: @(Model.IsBreak ? "block" : "inline-block"); margin-right: 15px; margin-bottom: 6px; cursor: pointer;">
+                <input type="checkbox"
+                       name="@Model.Name"
+                       value="@item.Value"
+                       checked="@item.Selected"> @item.Text
+            </label>
+        }
+    }
+</div>

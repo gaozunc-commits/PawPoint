@@ -1,0 +1,79 @@
+@model IEnumerable<Customer>
+@{
+    ViewBag.Title = "Customer Loyalty & Rewards Ledger";
+    int issued = ViewBag.TotalPointsIssued ?? 0;
+    int redeemed = ViewBag.TotalPointsRedeemed ?? 0;
+}
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px;">
+    <div style="background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 6px; padding: 15px;">
+        <div style="color: #2e7d32; font-size: 13px; font-weight: bold; text-transform: uppercase;">Total Points Issued</div>
+        <div style="font-size: 26px; font-weight: bold; color: #1b5e20; margin-top: 5px;">+@issued pts</div>
+    </div>
+
+    <div style="background: #ffebee; border: 1px solid #ffcdd2; border-radius: 6px; padding: 15px;">
+        <div style="color: #c62828; font-size: 13px; font-weight: bold; text-transform: uppercase;">Total Points Redeemed</div>
+        <div style="font-size: 26px; font-weight: bold; color: #b71c1c; margin-top: 5px;">-@redeemed pts</div>
+    </div>
+
+    <div style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 6px; padding: 15px;">
+        <div style="color: #1565c0; font-size: 13px; font-weight: bold; text-transform: uppercase;">Active Customer Balance</div>
+        <div style="font-size: 26px; font-weight: bold; color: #0d47a1; margin-top: 5px;">@(issued - redeemed) pts</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+    <div style="border: 1px solid #ddd; border-radius: 6px; padding: 15px; background: #fff;">
+        <h3 style="margin-top: 0;">👑 Top Loyalty Members</h3>
+        <table class="table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Email</th>
+                    <th style="text-align: right;">Points Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td>
+                            <img src="/photos/@c.PhotoURL" style="width: 28px; height: 28px; border-radius: 50%; vertical-align: middle; margin-right: 6px;" onerror="this.src='/photos/photo.jpg'">
+                            <b>@c.Name</b>
+                        </td>
+                        <td>@c.Email</td>
+                        <td style="text-align: right; font-weight: bold; color: #28a745;">🪙 @c.Points pts</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div style="border: 1px solid #ddd; border-radius: 6px; padding: 15px; background: #fff;">
+        <h3 style="margin-top: 0;">📜 Recent Rewards Ledger (Audit Trail)</h3>
+        <table class="table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Activity Reason</th>
+                    <th style="text-align: right;">Points</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (RewardTransaction t in ViewBag.Transactions)
+                {
+                    bool isAdd = t.Points > 0;
+                    <tr>
+                        <td>@t.CustomerEmail</td>
+                        <td><small>@t.Reason</small></td>
+                        <td style="text-align: right; font-weight: bold; color: @(isAdd ? "#28a745" : "#dc3545");">
+                            @(isAdd ? "+" : "")@t.Points
+                        </td>
+                        <td><small>@t.CreatedAt.ToString("MM/dd HH:mm")</small></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

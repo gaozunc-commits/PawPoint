@@ -1,0 +1,83 @@
+@{
+    ViewBag.Title = "Revenue & Sales Performance Analytics";
+    decimal productRev = ViewBag.ProductRevenue ?? 0;
+    decimal serviceRev = ViewBag.ServiceRevenue ?? 0;
+    decimal totalRev = ViewBag.TotalRevenue ?? 0;
+}
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+    <div style="background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 6px; padding: 15px;">
+        <div style="color: #2e7d32; font-size: 13px; font-weight: bold; text-transform: uppercase;">Total System Revenue</div>
+        <div style="font-size: 26px; font-weight: bold; color: #1b5e20; margin-top: 5px;">RM @totalRev.ToString("0.00")</div>
+    </div>
+
+    <div style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 6px; padding: 15px;">
+        <div style="color: #1565c0; font-size: 13px; font-weight: bold; text-transform: uppercase;">Grooming Services</div>
+        <div style="font-size: 26px; font-weight: bold; color: #0d47a1; margin-top: 5px;">RM @serviceRev.ToString("0.00")</div>
+    </div>
+
+    <div style="background: #fff3e0; border: 1px solid #ffe0b2; border-radius: 6px; padding: 15px;">
+        <div style="color: #e65100; font-size: 13px; font-weight: bold; text-transform: uppercase;">Supplies Retail Sales</div>
+        <div style="font-size: 26px; font-weight: bold; color: #bf360c; margin-top: 5px;">RM @productRev.ToString("0.00")</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+    <div style="border: 1px solid #ddd; border-radius: 6px; padding: 15px; background: #fff;">
+        <h3 style="margin-top: 0;">🏆 Top Performing Services</h3>
+        <table class="table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Bookings</th>
+                    <th style="text-align: right;">Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in ViewBag.TopServices)
+                {
+                    decimal pct = totalRev > 0 ? (s.Total / totalRev) * 100 : 0;
+                    <tr>
+                        <td>
+                            <b>@s.Name</b>
+                            <div style="background: #e0e0e0; height: 6px; border-radius: 3px; margin-top: 4px;">
+                                <div style="background: #0275d8; height: 6px; border-radius: 3px; width: @pct.ToString("0")%;"></div>
+                            </div>
+                        </td>
+                        <td>@s.Count session(s)</td>
+                        <td style="text-align: right; font-weight: bold; color: #28a745;">RM @s.Total.ToString("0.00")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div style="border: 1px solid #ddd; border-radius: 6px; padding: 15px; background: #fff;">
+        <h3 style="margin-top: 0;">📦 Top Selling Supplies</h3>
+        <table class="table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Units Sold</th>
+                    <th style="text-align: right;">Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in ViewBag.TopProducts)
+                {
+                    decimal pct = totalRev > 0 ? (p.Total / totalRev) * 100 : 0;
+                    <tr>
+                        <td>
+                            <b>@p.Name</b>
+                            <div style="background: #e0e0e0; height: 6px; border-radius: 3px; margin-top: 4px;">
+                                <div style="background: #28a745; height: 6px; border-radius: 3px; width: @pct.ToString("0")%;"></div>
+                            </div>
+                        </td>
+                        <td>@p.Qty unit(s)</td>
+                        <td style="text-align: right; font-weight: bold; color: #28a745;">RM @p.Total.ToString("0.00")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

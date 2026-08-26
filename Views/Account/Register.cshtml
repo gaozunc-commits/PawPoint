@@ -1,0 +1,69 @@
+@model RegisterVM
+@{
+    ViewBag.Title = "Customer Registration";
+}
+
+<form class="form" method="post" enctype="multipart/form-data" style="max-width: 600px;">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Email"></label>
+    <input asp-for="Email" data-trim autofocus style="width: 100%;">
+    <span asp-validation-for="Email"></span>
+
+    <label asp-for="Password"></label>
+    <input asp-for="Password" style="width: 100%;">
+    <span asp-validation-for="Password"></span>
+
+    <label asp-for="ConfirmPassword"></label>
+    <input asp-for="ConfirmPassword" style="width: 100%;">
+    <span asp-validation-for="ConfirmPassword"></span>
+
+    <label asp-for="Name"></label>
+    <input asp-for="Name" data-trim style="width: 100%;">
+    <span asp-validation-for="Name"></span>
+
+    <label asp-for="Phone"></label>
+    <input asp-for="Phone" placeholder="0123456789" data-trim style="width: 100%;">
+    <span asp-validation-for="Phone"></span>
+
+    <label asp-for="Photo"></label>
+    <div class="upload" style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="cursor: pointer; display: inline-block;">
+            <input asp-for="Photo" type="file" accept="image/jpeg,image/png" style="display: none;">
+            <img src="/photos/photo.jpg" alt="Profile Preview" id="photoPreview" style="width: 140px; height: 140px; object-fit: cover; border: 2px dashed #999; border-radius: 6px;">
+        </label>
+        <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn-webcam" data-target="#photoPreview" data-hidden="#WebcamPhotoBase64">📸 Use Webcam</button>
+            <small style="color: #666; align-self: center;">Click photo to choose file or use webcam</small>
+        </div>
+        <input type="hidden" asp-for="WebcamPhotoBase64" id="WebcamPhotoBase64">
+    </div>
+    <span asp-validation-for="Photo"></span>
+
+    <label>Security Check</label>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="badge" style="font-size: 16px; padding: 6px 12px; background: #555;">@ViewBag.CaptchaQuestion</span>
+        <input asp-for="Captcha" placeholder="Answer" style="width: 100px;">
+    </div>
+    <span asp-validation-for="Captcha"></span>
+
+    <section>
+        <button type="submit">Proceed to Email Verification</button>
+        <button type="button" data-get="/Account/Login">Already Have an Account?</button>
+    </section>
+</form>
+
+<!-- Webcam Modal Component -->
+<div id="webcamModal" class="modal" style="display:none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center;">
+    <div style="background: #fff; padding: 20px; border-radius: 8px; text-align: center; max-width: 450px; width: 90%;">
+        <h3>Webcam Snapshot</h3>
+        <video id="webcamVideo" autoplay playsinline style="width: 100%; max-height: 260px; background: #000; border-radius: 4px;"></video>
+        <canvas id="webcamCanvas" style="display: none;"></canvas>
+        <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+            <button type="button" id="snapBtn">Capture Photo</button>
+            <button type="button" id="closeWebcamBtn">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<partial name="_ValidationScriptsPartial" />

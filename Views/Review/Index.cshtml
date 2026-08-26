@@ -1,0 +1,49 @@
+@model IEnumerable<Review>
+@{
+    ViewBag.Title = "Customer Grooming Reviews & Ratings";
+    int? selectedRating = ViewBag.SelectedRating;
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fafafa; padding: 15px 20px; border: 1px solid #ddd; border-radius: 6px; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <div style="font-size: 28px; font-weight: bold; color: #f39c12;">
+            ★ @ViewBag.AverageRating.ToString("0.0") <span style="font-size: 16px; color: #555; font-weight: normal;">/ 5.0</span>
+        </div>
+        <div style="color: #666; font-size: 14px;">Based on @ViewBag.TotalReviews verified appointment review(s)</div>
+    </div>
+
+    <div style="display: flex; gap: 5px; align-items: center;">
+        <span style="font-weight: bold; font-size: 14px; margin-right: 5px;">Filter Rating:</span>
+        <button data-get="/Review/Index" style="@(selectedRating == null ? "background:#333;color:#fff;" : "")">All</button>
+        <button data-get="/Review/Index?rating=5" style="@(selectedRating == 5 ? "background:#333;color:#fff;" : "")">5 ★</button>
+        <button data-get="/Review/Index?rating=4" style="@(selectedRating == 4 ? "background:#333;color:#fff;" : "")">4 ★</button>
+        <button data-get="/Review/Index?rating=3" style="@(selectedRating == 3 ? "background:#333;color:#fff;" : "")">3 ★</button>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px;">
+    @if (!Model.Any())
+    {
+        <div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 25px;">No reviews in this category yet.</div>
+    }
+    @foreach (var r in Model)
+    {
+        <div style="border: 1px solid #ddd; border-radius: 6px; padding: 15px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <img src="/photos/@(r.Customer?.PhotoURL ?? "photo.jpg")" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" onerror="this.src='/photos/photo.jpg'">
+                    <b>@(r.Customer?.Name ?? "Verified Customer")</b>
+                </div>
+                <div style="color: #f39c12; font-size: 18px;">
+                    @string.Concat(Enumerable.Repeat("★", r.Rating))@string.Concat(Enumerable.Repeat("☆", 5 - r.Rating))
+                </div>
+            </div>
+
+            <p style="font-size: 14px; margin: 10px 0; color: #333;">"@r.Comment"</p>
+
+            <div style="font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 8px; margin-top: 10px;">
+                Pet: <b>@r.Appointment?.Pet?.Name</b> &middot; Staff: <b>@r.Appointment?.Staff?.Name</b> &middot; @r.CreatedAt.ToString("yyyy-MM-dd")
+            </div>
+        </div>
+    }
+</div>

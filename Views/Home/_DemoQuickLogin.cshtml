@@ -1,0 +1,67 @@
+<hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+
+<h3>🔑 Demo Quick-Login Credentials</h3>
+<table class="table" style="max-width: 650px;">
+    <tr>
+        <th>Role</th>
+        <th>Email Address</th>
+        <th>Password</th>
+        <th>Action</th>
+    </tr>
+    <tr>
+        <td><b>Admin</b></td>
+        <td>admin@pawpoint.test</td>
+        <td><code>password</code></td>
+        <td>
+            <button type="button" class="demo-login-btn"
+                    data-email="admin@pawpoint.test" data-password="password">
+                Login as Admin
+            </button>
+        </td>
+    </tr>
+    <tr>
+        <td><b>Staff</b></td>
+        <td>staff@pawpoint.test</td>
+        <td><code>password</code></td>
+        <td>
+            <button type="button" class="demo-login-btn"
+                    data-email="staff@pawpoint.test" data-password="password">
+                Login as Staff
+            </button>
+        </td>
+    </tr>
+    <tr>
+        <td><b>Customer</b></td>
+        <td>customer@pawpoint.test</td>
+        <td><code>password</code></td>
+        <td>
+            <button type="button" class="demo-login-btn"
+                    data-email="customer@pawpoint.test" data-password="password">
+                Login as Customer
+            </button>
+        </td>
+    </tr>
+</table>
+
+<script>
+document.querySelectorAll('.demo-login-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var data = new URLSearchParams();
+        data.append('email', btn.dataset.email);
+        data.append('password', btn.dataset.password);
+
+        fetch('/Account/DemoLogin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: data
+        }).then(function (res) {
+            if (!res.ok) throw new Error('Login failed');
+            return res.json();
+        }).then(function (res) {
+            if (res.redirect) location.href = res.redirect;
+        }).catch(function (err) {
+            alert('Demo login failed: ' + err.message);
+        });
+    });
+});
+</script>

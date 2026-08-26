@@ -1,0 +1,180 @@
+@inject DB db
+@inject Helper hp
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - PawPoint</title>
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="/css/pager.css">
+    <link rel="stylesheet" href="/css/app.css" asp-append-version="true">
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken">
+    @RenderSection("head", false)
+</head>
+<body>
+    <div class="info">@Html.Raw(TempData["Info"])</div>
+
+    <header>
+        <h1><a href="/">PawPoint</a></h1>
+
+        @if (User.Identity!.IsAuthenticated)
+        {
+            var email = User.Identity.Name;
+            var user = db.Users.Find(email);
+            var cust = user as Customer;
+            var staff = user as Staff;
+            var photo = cust?.PhotoURL ?? staff?.PhotoURL ?? (User.IsInRole("Admin") ? "admin.jpg" : "photo.jpg");
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                @if (cust != null)
+                {
+                    <span class="badge" title="Loyalty Reward Points" style="background: #28a745; padding: 4px 8px; font-weight: bold;">🪙 @cust.Points pts</span>
+                }
+                <span><b>@(user?.Name ?? email)</b> (@(user?.Role ?? "User"))</span>
+                <img src="/photos/@photo" alt="Profile" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #fff;" onerror="this.src='/photos/photo.jpg'">
+            </div>
+        }
+    </header>
+
+    <nav>
+        <a href="/">Home</a>
+        <a href="/Home/ServiceCatalog">Services</a>
+        <a href="/Product/Catalog">Supplies</a>
+        <a href="/Appointment/Availability">Availability</a>
+        <a href="/Review/Index">Reviews</a>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <a href="/Branch/Index">Branches</a>
+            <a href="/Staff/Index">Staff</a>
+            <a href="/Service/Index">Services Admin</a>
+            <a href="/Product/Insert">+ Product</a>
+            <a href="/Appointment/StaffIndex">All Appointments</a>
+            <a href="#" id="btnScanQR">Scan QR</a>
+            <a href="/Report/RevenueChart">Revenue Report</a>
+            <a href="/Report/BookingsChart">Bookings Report</a>
+            <a href="/Report/LoyaltyChart">Loyalty Report</a>
+        }
+
+        @if (User.IsInRole("Staff"))
+        {
+            <a href="/Appointment/StaffIndex">My Branch Bookings</a>
+            <a href="#" id="btnScanQR">Scan QR</a>
+            <a href="/Report/BookingsChart">Bookings Report</a>
+            <a href="/Report/RevenueChart">Revenue Report</a>
+        }
+
+        @if (User.IsInRole("Customer"))
+        {
+            <a href="/Pet/Index">My Pets</a>
+            <a href="/Appointment/Book">Book Grooming</a>
+            <a href="/Appointment/MyAppointments">My Bookings</a>
+            <a href="/Product/Cart">Cart (@(hp.GetCart().Values.Sum()))</a>
+            <a href="/Order/OrderHistory">My Orders</a>
+        }
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a href="/Chat/Index">Live Chat</a>
+        }
+
+        <div></div>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a href="/Account/UpdatePassword">Password</a>
+            <a href="/Account/Logout">Logout</a>
+        }
+        else
+        {
+            <a href="/Account/Login">Login</a>
+            <a href="/Account/Register">Register</a>
+            <a href="/Account/ResetPassword">Forgot Password</a>
+        }
+    </nav>
+
+    <main>
+        <h1>@ViewBag.Title</h1>
+        @RenderBody()
+    </main>
+
+    <footer>
+        PawPoint Multi-Branch Pet Grooming &amp; Supplies Management System &middot; Developed for AMIT2014 &middot; Copyrighted &copy; @DateTime.Today.Year
+    </footer>
+
+    @if (User.IsInRole("Staff") || User.IsInRole("Admin"))
+    {
+        <div id="qrScannerModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+            <div style="background:#fff; border-radius:8px; padding:20px; width:90%; max-width:400px; text-align:center;">
+                <h4 style="margin-top:0;">Scan Appointment QR Code</h4>
+                <div id="qrReader" style="width:100%; border:1px solid #ccc; border-radius:4px; overflow:hidden;"></div>
+                <p id="qrStatus" style="font-size:13px; color:#666;">Point camera at a QR code...</p>
+                <button id="btnCloseQR" style="padding:8px 20px; background:#d9534f; color:#fff; border:none; border-radius:4px; cursor:pointer;">Close Scanner</button>
+            </div>
+        </div>
+    }
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="/js/jquery.validate.min.js"></script>
+    <script src="/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="/js/signalr.min.js"></script>
+    <script src="/js/app.js" asp-append-version="true"></script>
+    @RenderSection("foot", false)
+
+    @if (User.IsInRole("Staff") || User.IsInRole("Admin"))
+    {
+        <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+        <script>
+            var html5QrCode = null;
+
+            document.getElementById('btnScanQR')?.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('qrScannerModal').style.display = 'flex';
+                startScanner();
+            });
+
+            document.getElementById('btnCloseQR')?.addEventListener('click', function () {
+                stopScanner();
+            });
+
+            function startScanner() {
+                var status = document.getElementById('qrStatus');
+                status.textContent = 'Point camera at a QR code...';
+                html5QrCode = new Html5Qrcode('qrReader');
+                html5QrCode.start(
+                    { facingMode: 'environment' },
+                    { fps: 10, qrbox: 250 },
+                    onScanSuccess
+                ).catch(function (err) {
+                    status.textContent = 'Camera error: ' + err;
+                });
+            }
+
+            function onScanSuccess(decodedText) {
+                stopScanner();
+                var match = decodedText.match(/\/QrCheckIn\/(\d+)/i);
+                if (match) {
+                    location.href = '/Appointment/QrCheckIn/' + match[1];
+                } else {
+                    document.getElementById('qrStatus').textContent = 'Invalid QR code. Retrying in 3s...';
+                    document.getElementById('qrScannerModal').style.display = 'flex';
+                    setTimeout(function () { startScanner(); }, 3000);
+                }
+            }
+
+            function stopScanner() {
+                if (html5QrCode) {
+                    try { html5QrCode.stop(); } catch (e) {}
+                    try { html5QrCode.clear(); } catch (e) {}
+                    html5QrCode = null;
+                }
+                document.getElementById('qrScannerModal').style.display = 'none';
+            }
+        </script>
+    }
+</body>
+</html>

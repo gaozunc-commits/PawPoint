@@ -1,0 +1,108 @@
+@model X.PagedList.IPagedList<Product>
+@using X.PagedList.Mvc.Core
+
+@{
+    string name = Context.Request.Query["name"]!;
+    string sort = Context.Request.Query["sort"]!;
+    string dir = Context.Request.Query["dir"]!;
+
+    var ajaxOptions = new AjaxOptions
+    {
+        HttpMethod = "get",
+        UpdateTargetId = "target",
+        LoadingElementId = "#loader",
+    };
+
+    var options = PagedListRenderOptions.ClassicPlusFirstAndLast;
+    Func<string, string> SortClass = col => sort == col ? (dir == "des" ? "des" : "asc") : "";
+    Func<string, string> SortDir = col => sort == col && dir != "des" ? "des" : "asc";
+}
+
+<p style="margin: 8px 0; color: #555;"><b>@Model.TotalItemCount</b> supply item(s) found</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Photo</th>
+            <th>Id</th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&sort=Name&dir=@SortDir("Name")" class="@SortClass("Name")">Product Name</a>
+            </th>
+            <th>Description</th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&sort=Price&dir=@SortDir("Price")" class="@SortClass("Price")">Price</a>
+            </th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&sort=Stock&dir=@SortDir("Stock")" class="@SortClass("Stock")">Stock</a>
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="7" style="text-align: center; color: #777; padding: 15px;">No products match your search.</td></tr>
+        }
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>
+                    <img src="/products/@p.PhotoURL" alt="@p.Name" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;" onerror="this.src='/photos/photo.jpg'">
+                    <img src="/products/@p.PhotoURL" class="popup" style="width: 180px; height: 180px; object-fit: cover; border: 2px solid #333; border-radius: 6px;" onerror="this.src='/photos/photo.jpg'">
+                </td>
+                <td><b>@p.Id</b></td>
+                <td><b>@p.Name</b></td>
+                <td>@p.Description</td>
+                <td style="font-weight: bold; color: #28a745;">RM @p.Price.ToString("0.00")</td>
+                <td>
+                    @if (p.Stock > 0)
+                    {
+                        <span class="badge" style="background: #28a745;">@p.Stock in stock</span>
+                    }
+                    else
+                    {
+                        <span class="badge" style="background: #dc3545;">Out of stock</span>
+                    }
+                </td>
+                <td style="white-space: nowrap;">
+                    @if (User.IsInRole("Customer"))
+                    {
+                        @if (p.Stock > 0)
+                        {
+                            <form method="post" action="/Product/AddToCart/@p.Id" style="display: inline;">
+                                <button type="submit">🛒 Add to Cart</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <button disabled style="opacity: 0.5; cursor: not-allowed;">Out of Stock</button>
+                        }
+                    }
+                    else if (!User.Identity!.IsAuthenticated)
+                    {
+                        <button data-get="/Account/Login">Login to Buy</button>
+                    }
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <button data-get="/Product/Update/@p.Id">Edit</button>
+                        <form method="post" action="/Product/Delete/@p.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete product @p.Name?');">
+                            <button type="submit">Delete</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-top: 15px;">
+    @Html.PagedListPager(
+        Model,
+        p => $"?name={name}&sort={sort}&dir={dir}&page={p}",
+        PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(options, ajaxOptions)
+    )
+</div>

@@ -1,0 +1,70 @@
+@model Order
+@{
+    ViewBag.Title = "Order #" + Model?.Id + " Detail";
+    decimal total = Model?.OrderLines.Sum(l => l.Price * l.Quantity) ?? 0;
+}
+
+@if (Model == null)
+{
+    <p>Order not found.</p>
+}
+else
+{
+    <div style="max-width: 800px;">
+        <table class="table detail" style="margin-bottom: 20px;">
+            <tr><th style="width: 140px;">Order ID</th><td><b>#@Model.Id</b></td></tr>
+            <tr><th>Order Date</th><td>@Model.Date.ToString("yyyy-MM-dd")</td></tr>
+            <tr><th>Customer</th><td>@Model.CustomerEmail</td></tr>
+            <tr><th>Delivery Address</th><td>@(Model.DeliveryAddress ?? "Standard Delivery")</td></tr>
+            <tr>
+                <th>Payment Status</th>
+                <td>
+                    <span class="badge" style="background: @(Model.Paid ? "#28a745" : "#f0ad4e");">@(Model.Paid ? "PAID" : "PENDING")</span>
+                    @if (!Model.Paid)
+                    {
+                        <button data-post="/Order/PayDeposit/@Model.Id" style="margin-left: 10px; background: #0275d8; color: #fff;">Pay Online / Stripe</button>
+                    }
+                </td>
+            </tr>
+        </table>
+
+        <h3>Ordered Items</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Product</th>
+                    <th>Unit Price</th>
+                    <th>Quantity</th>
+                    <th style="text-align: right;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var line in Model.OrderLines)
+                {
+                    <tr>
+                        <td>
+                            <img src="/products/@line.Product?.PhotoURL" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;" onerror="this.src='/photos/photo.jpg'">
+                        </td>
+                        <td>
+                            <b>@line.Product?.Name</b><br>
+                            <small style="color: #666;">@line.Product?.Description</small>
+                        </td>
+                        <td>RM @line.Price.ToString("0.00")</td>
+                        <td>@line.Quantity</td>
+                        <td style="text-align: right; font-weight: bold; color: #28a745;">RM @((line.Price * line.Quantity).ToString("0.00"))</td>
+                    </tr>
+                }
+                <tr>
+                    <td colspan="4" style="text-align: right; font-weight: bold;">Grand Total:</td>
+                    <td style="text-align: right; font-weight: bold; color: #28a745; font-size: 16px;">RM @total.ToString("0.00")</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 20px;">
+            <button data-get="/Order/OrderHistory">Back to Order History</button>
+            <button data-get="/Product/Catalog">Back to Supplies Catalog</button>
+        </div>
+    </div>
+}
