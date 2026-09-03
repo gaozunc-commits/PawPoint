@@ -1,0 +1,53 @@
+@model X.PagedList.IPagedList<Order>
+@using X.PagedList.Mvc.Core
+@{
+    ViewBag.Title = "My Order History";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Order Date</th>
+            <th>Items Ordered</th>
+            <th>Total Amount</th>
+            <th>Payment Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="6" style="text-align: center; color: #777; padding: 20px;">You have not placed any orders yet.</td></tr>
+        }
+        @foreach (var o in Model)
+        {
+            decimal total = o.OrderLines.Sum(l => l.Price * l.Quantity);
+            <tr>
+                <td><b>#@o.Id</b></td>
+                <td>@o.Date.ToString("yyyy-MM-dd")</td>
+                <td>
+                    @foreach (var l in o.OrderLines)
+                    {
+                        <span style="display: block; font-size: 13px;">• @l.Product?.Name (&times;@l.Quantity)</span>
+                    }
+                </td>
+                <td style="font-weight: bold; color: #28a745;">RM @total.ToString("0.00")</td>
+                <td>
+                    <span class="badge" style="background: @(o.Paid ? "#28a745" : "#f0ad4e");">@(o.Paid ? "PAID" : "PENDING")</span>
+                </td>
+                <td>
+                    <button data-get="/Order/OrderDetail/@o.Id">View Receipt</button>
+                    @if (!o.Paid)
+                    {
+                        <button data-post="/Order/PayDeposit/@o.Id">Pay Now</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-top: 15px;">
+    @Html.PagedListPager(Model, p => $"?page={p}")
+</div>

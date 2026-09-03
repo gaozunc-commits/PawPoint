@@ -1,0 +1,37 @@
+@model LoginVM
+@{
+    ViewBag.Title = "Account Login";
+}
+
+<form class="form" method="post" style="max-width: 450px;">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Email"></label>
+    <input asp-for="Email" autofocus data-trim style="width: 100%;">
+    <span asp-validation-for="Email"></span>
+
+    <label asp-for="Password"></label>
+    <input asp-for="Password" style="width: 100%;">
+    <span asp-validation-for="Password"></span>
+
+    <label>Security Check</label>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="badge" style="font-size: 16px; padding: 6px 12px; background: #555;">@ViewBag.CaptchaQuestion</span>
+        <input asp-for="Captcha" placeholder="Answer" style="width: 100px;">
+    </div>
+    <span asp-validation-for="Captcha"></span>
+
+    <label></label>
+    <div>
+        <label style="cursor: pointer;"><input asp-for="RememberMe"> Remember Me (7 days)</label>
+    </div>
+    <span></span>
+
+    <section>
+        <button type="submit">Sign In</button>
+        <button type="button" data-get="/Account/Register">Create Account</button>
+        <button type="button" data-get="/Account/ResetPassword">Forgot Password?</button>
+    </section>
+</form>
+
+<partial name="_ValidationScriptsPartial" />

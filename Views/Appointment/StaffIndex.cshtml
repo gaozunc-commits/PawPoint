@@ -1,0 +1,93 @@
+@model X.PagedList.IPagedList<Appointment>
+@using X.PagedList.Mvc.Core
+@{
+    ViewBag.Title = User.IsInRole("Admin") ? "All Appointments Management" : "My Branch Appointments";
+    string currentStatus = Context.Request.Query["status"]!;
+    string currentBranch = Context.Request.Query["branchId"]!;
+}
+
+<form method="get" style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+    @if (User.IsInRole("Admin"))
+    {
+        <select name="branchId" onchange="this.form.submit();" style="padding: 6px 10px;">
+            <option value="">- All Branches -</option>
+            @if (ViewBag.Branches != null)
+            {
+                foreach (Branch b in ViewBag.Branches)
+                {
+                    <option value="@b.Id" selected="@(currentBranch == b.Id)">@b.Name</option>
+                }
+            }
+        </select>
+    }
+
+    <select name="status" onchange="this.form.submit();" style="padding: 6px 10px;">
+        <option value="">- All Statuses -</option>
+        <option value="Pending" selected="@(currentStatus == "Pending")">Pending</option>
+        <option value="Confirmed" selected="@(currentStatus == "Confirmed")">Confirmed</option>
+        <option value="Completed" selected="@(currentStatus == "Completed")">Completed</option>
+        <option value="Cancelled" selected="@(currentStatus == "Cancelled")">Cancelled</option>
+    </select>
+
+    <button type="submit">Filter</button>
+    <button type="button" data-get="/Appointment/StaffIndex">Reset</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Customer &amp; Pet</th>
+            <th>Date &amp; Time</th>
+            <th>Branch</th>
+            <th>Assigned Staff</th>
+            <th>Services</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="8" style="text-align: center; color: #777; padding: 20px;">No appointments found.</td></tr>
+        }
+        @foreach (var x in Model)
+        {
+            string statusColor = x.Status switch
+            {
+                "Confirmed" => "#0275d8",
+                "Completed" => "#28a745",
+                "Cancelled" => "#d9534f",
+                _ => "#f0ad4e"
+            };
+
+            <tr>
+                <td><b>#@x.Id</b></td>
+                <td>
+                    <b>@x.Pet?.CustomerEmail</b><br>
+                    <small>Pet: @x.Pet?.Name (@x.Pet?.Species)</small>
+                </td>
+                <td>@x.Date.ToString("yyyy-MM-dd")<br><small style="color: #666;">@x.TimeSlot.ToString("hh:mm tt")</small></td>
+                <td>@x.Branch?.Name</td>
+                <td>@x.Staff?.Name</td>
+                <td>
+                    @foreach (var sv in x.AppointmentServices)
+                    {
+                        <span style="display: block; font-size: 13px;">• @sv.Service?.Name</span>
+                    }
+                </td>
+                <td>
+                    <span class="badge" style="background: @statusColor; padding: 4px 8px;">@x.Status</span>
+                </td>
+                <td style="white-space: nowrap;">
+                    <button data-get="/Appointment/Detail/@x.Id">Detail</button>
+                    <button data-get="/Appointment/UpdateStatus/@x.Id">Update Status</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-top: 15px;">
+    @Html.PagedListPager(Model, p => $"?branchId={currentBranch}&status={currentStatus}&page={p}")
+</div>

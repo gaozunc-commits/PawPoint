@@ -1,0 +1,36 @@
+@{
+    ViewBag.Title = "Welcome to PawPoint";
+}
+
+<div style="background: #f4f6f9; border-left: 4px solid #007bff; padding: 15px 20px; margin-bottom: 20px; border-radius: 4px;">
+    <h2 style="margin-top: 0; color: #333;">🐾 Professional Pet Grooming &amp; Supplies Care</h2>
+    <p style="margin-bottom: 0;">PawPoint is a comprehensive multi-branch grooming appointment and retail system. Book multi-service pet grooming sessions, check live slot availability across branches, order premium supplies, and earn loyalty rewards.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; background: #fff;">
+        <h3 style="margin-top: 0;">✂️ Grooming Services</h3>
+        <p>Explore basic bath, full scissoring, de-shedding, aroma spa, teeth cleaning, and feline packages.</p>
+        <button data-get="/Home/ServiceCatalog">Browse Services</button>
+    </div>
+
+    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; background: #fff;">
+        <h3 style="margin-top: 0;">🛍️ Grooming Supplies</h3>
+        <p>Browse our catalog of hypoallergenic shampoos, slicker brushes, dental treats, and accessories.</p>
+        <button data-get="/Product/Catalog">Shop Supplies</button>
+    </div>
+
+    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; background: #fff;">
+        <h3 style="margin-top: 0;">📅 Real-Time Availability</h3>
+        <p>View staff and slot availability matrix grids before booking to find the best grooming slot.</p>
+        <button data-get="/Appointment/Availability">Check Matrix</button>
+    </div>
+
+    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; background: #fff;">
+        <h3 style="margin-top: 0;">⭐ Reviews &amp; Loyalty</h3>
+        <p>Read customer reviews and earn loyalty points on every completed appointment and store order.</p>
+        <button data-get="/Review/Index">View Reviews</button>
+    </div>
+</div>
+
+<partial name="_DemoQuickLogin" />

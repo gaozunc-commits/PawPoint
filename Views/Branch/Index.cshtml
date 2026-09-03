@@ -1,0 +1,32 @@
+@model X.PagedList.IPagedList<Branch>
+@using X.PagedList.Mvc.Core
+@{
+    ViewBag.Title = "Branch Management";
+}
+
+<p><button data-get="/Branch/Insert">+ Add New Branch</button></p>
+
+<form data-ajax="true"
+      data-ajax-update="#target"
+      data-ajax-loading="#loader"
+      id="f"
+      style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+    @Html.TextBox("name", "", new { type = "search", placeholder = "Search branch name/address...", autofocus = "", data_trim = "", style = "padding: 6px 10px; min-width: 250px;" })
+    <button type="submit">Search</button>
+    <button type="reset">Reset</button>
+    <img src="/images/loader.gif" id="loader" style="display: none; height: 24px;">
+</form>
+
+<div id="target">
+    <partial name="_A" model="Model" />
+</div>
+
+@section foot {
+    <script>
+        let timer = null;
+        $('#name').on('input', e => {
+            clearTimeout(timer);
+            timer = setTimeout(() => $(e.target.form).submit(), 400);
+        });
+    </script>
+}

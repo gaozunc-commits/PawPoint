@@ -1,0 +1,84 @@
+@model X.PagedList.IPagedList<Service>
+@using X.PagedList.Mvc.Core
+
+@{
+    string name = Context.Request.Query["name"]!;
+    string branchId = Context.Request.Query["branchId"]!;
+    string sort = Context.Request.Query["sort"]!;
+    string dir = Context.Request.Query["dir"]!;
+
+    var ajaxOptions = new AjaxOptions
+    {
+        HttpMethod = "get",
+        UpdateTargetId = "target",
+        LoadingElementId = "#loader",
+    };
+
+    var options = PagedListRenderOptions.ClassicPlusFirstAndLast;
+    Func<string, string> SortClass = col => sort == col ? (dir == "des" ? "des" : "asc") : "";
+    Func<string, string> SortDir = col => sort == col && dir != "des" ? "des" : "asc";
+}
+
+<p style="margin: 8px 0; color: #555;"><b>@Model.TotalItemCount</b> service(s) listed</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Photo</th>
+            <th>Id</th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&branchId=@branchId&sort=Name&dir=@SortDir("Name")" class="@SortClass("Name")">Service Name</a>
+            </th>
+            <th>Description</th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&branchId=@branchId&sort=Price&dir=@SortDir("Price")" class="@SortClass("Price")">Price</a>
+            </th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&branchId=@branchId&sort=Duration&dir=@SortDir("Duration")" class="@SortClass("Duration")">Duration</a>
+            </th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&branchId=@branchId&sort=Branch&dir=@SortDir("Branch")" class="@SortClass("Branch")">Branch</a>
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="8" style="text-align: center; color: #777; padding: 15px;">No services found.</td></tr>
+        }
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td>
+                    <img src="/services/@s.PhotoURL" alt="@s.Name" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;" onerror="this.src='/photos/photo.jpg'">
+                    <img src="/services/@s.PhotoURL" class="popup" style="width: 160px; height: 160px; object-fit: cover; border: 2px solid #333; border-radius: 6px;" onerror="this.src='/photos/photo.jpg'">
+                </td>
+                <td><b>@s.Id</b></td>
+                <td>@s.Name</td>
+                <td>@s.Description</td>
+                <td style="font-weight: bold; color: #28a745;">RM @s.Price.ToString("0.00")</td>
+                <td>@s.DurationMinutes min</td>
+                <td><span class="badge">@s.Branch?.Name</span></td>
+                <td style="white-space: nowrap;">
+                    <button data-get="/Service/Update/@s.Id">Update</button>
+                    <form method="post" action="/Service/Delete/@s.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete service @s.Name?');">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-top: 15px;">
+    @Html.PagedListPager(
+        Model,
+        p => $"?name={name}&branchId={branchId}&sort={sort}&dir={dir}&page={p}",
+        PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(options, ajaxOptions)
+    )
+</div>

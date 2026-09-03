@@ -1,0 +1,75 @@
+@model IEnumerable<Product>
+@inject Helper hp
+@{
+    ViewBag.Title = "Shopping Cart";
+    var cart = hp.GetCart();
+    decimal grandTotal = 0;
+}
+
+@if (!Model.Any())
+{
+    <div style="background: #fdf7e7; border-left: 4px solid #f0ad4e; padding: 20px; border-radius: 4px; max-width: 600px;">
+        <h3 style="margin-top: 0; color: #8a6d3b;">Your Shopping Cart is Empty</h3>
+        <p>Explore our premium pet grooming supplies and add items to your cart!</p>
+        <button data-get="/Product/Catalog">Browse Supplies Catalog</button>
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Photo</th>
+                <th>Product</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                int qty = cart.GetValueOrDefault(p.Id, 0);
+                decimal subtotal = p.Price * qty;
+                grandTotal += subtotal;
+
+                <tr>
+                    <td>
+                        <img src="/products/@p.PhotoURL" alt="@p.Name" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" onerror="this.src='/photos/photo.jpg'">
+                    </td>
+                    <td>
+                        <b>@p.Name</b><br>
+                        <small style="color: #666;">@p.Description</small>
+                    </td>
+                    <td>RM @p.Price.ToString("0.00")</td>
+                    <td>
+                        <form method="post" action="/Product/UpdateCart" style="display: flex; gap: 5px; align-items: center;">
+                            <input type="hidden" name="id" value="@p.Id">
+                            <input type="number" name="quantity" value="@qty" min="1" max="@Math.Min(20, p.Stock)" style="width: 60px; padding: 4px;">
+                            <button type="submit" style="padding: 4px 8px; font-size: 13px;">Update</button>
+                        </form>
+                    </td>
+                    <td style="font-weight: bold; color: #28a745;">RM @subtotal.ToString("0.00")</td>
+                    <td>
+                        <form method="post" action="/Product/RemoveFromCart/@p.Id">
+                            <button type="submit" style="color: red;">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; max-width: 800px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px;">
+        <div>
+            <button data-get="/Product/Catalog">&larr; Continue Shopping</button>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">
+                Grand Total: <span style="color: #28a745;">RM @grandTotal.ToString("0.00")</span>
+            </div>
+            <button data-get="/Order/Checkout" style="font-size: 16px; padding: 8px 20px; background: #28a745; color: #fff;">Proceed to Checkout &rarr;</button>
+        </div>
+    </div>
+}

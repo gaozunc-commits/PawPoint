@@ -1,0 +1,65 @@
+@model PetUpdateVM
+@{
+    ViewBag.Title = "Update Pet Profile";
+}
+
+<form class="form" method="post" enctype="multipart/form-data" style="max-width: 600px;">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <input type="hidden" asp-for="Id">
+    <input type="hidden" asp-for="PhotoURL">
+
+    <label asp-for="Name"></label>
+    <input asp-for="Name" data-trim style="width: 100%;">
+    <span asp-validation-for="Name"></span>
+
+    <label asp-for="Species"></label>
+    <select asp-for="Species" style="width: 100%; padding: 6px;">
+        <option value="Dog">Dog</option>
+        <option value="Cat">Cat</option>
+        <option value="Other">Other</option>
+    </select>
+    <span asp-validation-for="Species"></span>
+
+    <label asp-for="Breed"></label>
+    <input asp-for="Breed" data-trim style="width: 100%;">
+    <span asp-validation-for="Breed"></span>
+
+    <label asp-for="DOB"></label>
+    <input asp-for="DOB" type="date" max="@DateTime.Today.ToString("yyyy-MM-dd")" style="width: 100%;">
+    <span asp-validation-for="DOB"></span>
+
+    <label asp-for="Photo"></label>
+    <div class="upload" style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="cursor: pointer; display: inline-block;">
+            <input asp-for="Photo" type="file" accept="image/jpeg,image/png" style="display: none;">
+            <img src="/pets/@(Model.PhotoURL ?? "photo.jpg")" alt="Pet Preview" id="petPhotoPreview" style="width: 140px; height: 140px; object-fit: cover; border: 2px dashed #999; border-radius: 6px;" onerror="this.src='/photos/photo.jpg'">
+        </label>
+        <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn-webcam" data-target="#petPhotoPreview" data-hidden="#WebcamPhotoBase64">📸 Capture with Webcam</button>
+            <small style="color: #666; align-self: center;">Click photo to change file or capture new snapshot</small>
+        </div>
+        <input type="hidden" asp-for="WebcamPhotoBase64" id="WebcamPhotoBase64">
+    </div>
+    <span asp-validation-for="Photo"></span>
+
+    <section>
+        <button type="submit">Update Pet Profile</button>
+        <button type="button" data-get="/Pet/Index">Cancel</button>
+    </section>
+</form>
+
+<!-- Webcam Modal Component -->
+<div id="webcamModal" class="modal" style="display:none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center;">
+    <div style="background: #fff; padding: 20px; border-radius: 8px; text-align: center; max-width: 450px; width: 90%;">
+        <h3>Webcam Snapshot</h3>
+        <video id="webcamVideo" autoplay playsinline style="width: 100%; max-height: 260px; background: #000; border-radius: 4px;"></video>
+        <canvas id="webcamCanvas" style="display: none;"></canvas>
+        <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+            <button type="button" id="snapBtn">Capture Photo</button>
+            <button type="button" id="closeWebcamBtn">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<partial name="_ValidationScriptsPartial" />

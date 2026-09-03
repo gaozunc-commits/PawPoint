@@ -1,0 +1,52 @@
+@{
+    ViewBag.Title = "Appointments & Bookings Analytics";
+    int total = ViewBag.TotalBookings ?? 0;
+}
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+    <div style="border: 1px solid #ddd; border-radius: 6px; padding: 20px; background: #fff;">
+        <h3 style="margin-top: 0;">📊 Appointments by Status</h3>
+        <p style="color: #666; font-size: 14px;">Distribution across all @total recorded appointments:</p>
+
+        @foreach (var st in ViewBag.ByStatus)
+        {
+            decimal pct = total > 0 ? ((decimal)st.Count / total) * 100 : 0;
+            string color = st.Status switch
+            {
+                "Confirmed" => "#0275d8",
+                "Completed" => "#28a745",
+                "Cancelled" => "#d9534f",
+                _ => "#f0ad4e"
+            };
+
+            <div style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;">
+                    <span><b style="color: @color;">@st.Status</b></span>
+                    <span><b>@st.Count</b> (@pct.ToString("0.0")%)</span>
+                </div>
+                <div style="background: #eee; height: 12px; border-radius: 6px; overflow: hidden;">
+                    <div style="background: @color; height: 100%; width: @pct.ToString("0")%;"></div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div style="border: 1px solid #ddd; border-radius: 6px; padding: 20px; background: #fff;">
+        <h3 style="margin-top: 0;">🏢 Appointments by Branch</h3>
+        <p style="color: #666; font-size: 14px;">Booking density per physical salon branch location:</p>
+
+        @foreach (var br in ViewBag.ByBranch)
+        {
+            decimal pct = total > 0 ? ((decimal)br.Count / total) * 100 : 0;
+            <div style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px;">
+                    <span><b>@br.Branch</b></span>
+                    <span><b>@br.Count</b> (@pct.ToString("0.0")%)</span>
+                </div>
+                <div style="background: #eee; height: 12px; border-radius: 6px; overflow: hidden;">
+                    <div style="background: #6c757d; height: 100%; width: @pct.ToString("0")%;"></div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

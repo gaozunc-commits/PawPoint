@@ -1,0 +1,55 @@
+@model StaffInsertVM
+@{
+    ViewBag.Title = "Add New Staff";
+}
+
+<form class="form" method="post" enctype="multipart/form-data" style="max-width: 600px;">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Email"></label>
+    <input asp-for="Email" autofocus data-trim style="width: 100%;">
+    <span asp-validation-for="Email"></span>
+
+    <label asp-for="Password"></label>
+    <input asp-for="Password" style="width: 100%;">
+    <span asp-validation-for="Password"></span>
+
+    <label asp-for="Name"></label>
+    <input asp-for="Name" data-trim style="width: 100%;">
+    <span asp-validation-for="Name"></span>
+
+    <label asp-for="Phone"></label>
+    <input asp-for="Phone" data-trim style="width: 100%;">
+    <span asp-validation-for="Phone"></span>
+
+    <label asp-for="BranchId"></label>
+    <select asp-for="BranchId" asp-items="ViewBag.BranchList" style="width: 100%; padding: 6px;"></select>
+    <span asp-validation-for="BranchId"></span>
+
+    <label asp-for="Photo"></label>
+    <div class="upload">
+        <label style="cursor: pointer;">
+            <input asp-for="Photo" type="file" accept="image/jpeg,image/png" style="display: none;">
+            <img src="/photos/photo.jpg" alt="Preview" style="width: 120px; height: 120px; border-radius: 4px; border: 2px dashed #999;">
+        </label>
+        <br><small style="color: #666;">Click photo to upload custom image</small>
+    </div>
+    <span asp-validation-for="Photo"></span>
+
+    <label>Assigned Services (M:M)</label>
+    <div>
+        <partial name="_CheckBoxList" model='("ServiceIds", ViewBag.ServiceList, false)' />
+        <div style="margin-top: 5px;">
+            <a href="#" data-check="ServiceIds" style="font-size: 13px;">Check All</a> |
+            <a href="#" data-uncheck="ServiceIds" style="font-size: 13px;">Uncheck All</a>
+        </div>
+    </div>
+    <span asp-validation-for="ServiceIds"></span>
+
+    <section>
+        <button type="submit">Save Staff</button>
+        <button type="button" data-get="/Staff/Index">Cancel</button>
+    </section>
+</form>
+
+<partial name="_ValidationScriptsPartial" />

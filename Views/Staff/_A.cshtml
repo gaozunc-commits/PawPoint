@@ -1,0 +1,84 @@
+@model X.PagedList.IPagedList<Staff>
+@using X.PagedList.Mvc.Core
+
+@{
+    string name = Context.Request.Query["name"]!;
+    string branchId = Context.Request.Query["branchId"]!;
+    string sort = Context.Request.Query["sort"]!;
+    string dir = Context.Request.Query["dir"]!;
+
+    var ajaxOptions = new AjaxOptions
+    {
+        HttpMethod = "get",
+        UpdateTargetId = "target",
+        LoadingElementId = "#loader",
+    };
+
+    var options = PagedListRenderOptions.ClassicPlusFirstAndLast;
+    Func<string, string> SortClass = col => sort == col ? (dir == "des" ? "des" : "asc") : "";
+    Func<string, string> SortDir = col => sort == col && dir != "des" ? "des" : "asc";
+}
+
+<p style="margin: 8px 0; color: #555;"><b>@Model.TotalItemCount</b> staff member(s) registered</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Photo</th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&branchId=@branchId&sort=Name&dir=@SortDir("Name")" class="@SortClass("Name")">Staff Name</a>
+            </th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&branchId=@branchId&sort=Email&dir=@SortDir("Email")" class="@SortClass("Email")">Email</a>
+            </th>
+            <th>Phone</th>
+            <th>
+                <a data-ajax="true" data-ajax-update="#target" data-ajax-loading="#loader"
+                   href="?name=@name&branchId=@branchId&sort=Branch&dir=@SortDir("Branch")" class="@SortClass("Branch")">Branch</a>
+            </th>
+            <th>Assigned Services (M:M)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="7" style="text-align: center; color: #777; padding: 15px;">No staff records found.</td></tr>
+        }
+        @foreach (var x in Model)
+        {
+            <tr>
+                <td>
+                    <img src="/staff/@x.PhotoURL" alt="@x.Name" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc;" onerror="this.src='/photos/photo.jpg'">
+                    <img src="/staff/@x.PhotoURL" class="popup" style="width: 160px; height: 160px; object-fit: cover; border: 2px solid #333; border-radius: 6px;" onerror="this.src='/photos/photo.jpg'">
+                </td>
+                <td><b>@x.Name</b></td>
+                <td>@x.Email</td>
+                <td>@x.Phone</td>
+                <td><span class="badge">@x.Branch?.Name</span></td>
+                <td>
+                    @foreach (var ss in x.StaffServices)
+                    {
+                        <span style="display: inline-block; background: #e2e3e5; color: #383d41; padding: 2px 6px; border-radius: 3px; font-size: 12px; margin: 2px;">@ss.Service?.Name</span>
+                    }
+                </td>
+                <td style="white-space: nowrap;">
+                    <button data-get="/Staff/Update/@x.Email">Update</button>
+                    <form method="post" action="/Staff/Delete/@x.Email" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete staff @x.Name?');">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-top: 15px;">
+    @Html.PagedListPager(
+        Model,
+        p => $"?name={name}&branchId={branchId}&sort={sort}&dir={dir}&page={p}",
+        PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(options, ajaxOptions)
+    )
+</div>

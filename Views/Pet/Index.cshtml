@@ -1,0 +1,48 @@
+@model IEnumerable<Pet>
+@{
+    ViewBag.Title = "My Pet Profiles";
+}
+
+<p><button data-get="/Pet/Insert">+ Register New Pet</button></p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Photo</th>
+            <th>Pet Name</th>
+            <th>Species</th>
+            <th>Breed</th>
+            <th>Date of Birth / Age</th>
+            <th>Bookings</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr><td colspan="7" style="text-align: center; color: #777; padding: 15px;">You have not registered any pets yet. Click "+ Register New Pet" above!</td></tr>
+        }
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>
+                    <img src="/pets/@p.PhotoURL" alt="@p.Name" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc;" onerror="this.src='/photos/photo.jpg'">
+                    <img src="/pets/@p.PhotoURL" class="popup" style="width: 160px; height: 160px; object-fit: cover; border: 2px solid #333; border-radius: 6px;" onerror="this.src='/photos/photo.jpg'">
+                </td>
+                <td><b>@p.Name</b></td>
+                <td><span class="badge">@p.Species</span></td>
+                <td>@p.Breed</td>
+                <td>@(p.DOB?.ToString("yyyy-MM-dd") ?? "N/A")</td>
+                <td>
+                    <button data-get="/Appointment/Book">Book Grooming</button>
+                </td>
+                <td style="white-space: nowrap;">
+                    <button data-get="/Pet/Update/@p.Id">Edit</button>
+                    <form method="post" action="/Pet/Delete/@p.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove pet profile @p.Name?');">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

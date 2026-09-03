@@ -1,0 +1,87 @@
+@model X.PagedList.IPagedList<Appointment>
+@using X.PagedList.Mvc.Core
+@{
+    ViewBag.Title = "My Appointments";
+    string currentStatus = Context.Request.Query["status"]!;
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+    <div>
+        <button data-get="/Appointment/Book">+ Book New Appointment</button>
+    </div>
+    <div style="display: flex; gap: 5px;">
+        <button data-get="/Appointment/MyAppointments" style="@(string.IsNullOrEmpty(currentStatus) ? "background:#333;color:#fff;" : "")">All</button>
+        <button data-get="/Appointment/MyAppointments?status=Pending" style="@(currentStatus=="Pending" ? "background:#333;color:#fff;" : "")">Pending</button>
+        <button data-get="/Appointment/MyAppointments?status=Confirmed" style="@(currentStatus=="Confirmed" ? "background:#333;color:#fff;" : "")">Confirmed</button>
+        <button data-get="/Appointment/MyAppointments?status=Completed" style="@(currentStatus=="Completed" ? "background:#333;color:#fff;" : "")">Completed</button>
+        <button data-get="/Appointment/MyAppointments?status=Cancelled" style="@(currentStatus=="Cancelled" ? "background:#333;color:#fff;" : "")">Cancelled</button>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Pet</th>
+            <th>Date &amp; Time</th>
+            <th>Branch</th>
+            <th>Staff Groomer</th>
+            <th>Services</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="8" style="text-align: center; color: #777; padding: 20px;">No appointments found in this category.</td></tr>
+        }
+        @foreach (var x in Model)
+        {
+            string statusColor = x.Status switch
+            {
+                "Confirmed" => "#0275d8",
+                "Completed" => "#28a745",
+                "Cancelled" => "#d9534f",
+                _ => "#f0ad4e"
+            };
+
+            <tr>
+                <td><b>#@x.Id</b></td>
+                <td>
+                    <img src="/pets/@x.Pet?.PhotoURL" style="width: 32px; height: 32px; border-radius: 50%; vertical-align: middle; margin-right: 6px;" onerror="this.src='/photos/photo.jpg'">
+                    <b>@x.Pet?.Name</b> (@x.Pet?.Species)
+                </td>
+                <td>@x.Date.ToString("yyyy-MM-dd")<br><small style="color: #666;">@x.TimeSlot.ToString("hh:mm tt")</small></td>
+                <td>@x.Branch?.Name</td>
+                <td>@(x.Staff?.Name ?? "Pending Assignment")</td>
+                <td>
+                    @foreach (var sv in x.AppointmentServices)
+                    {
+                        <span style="display: block; font-size: 13px;">• @sv.Service?.Name (RM @sv.Price.ToString("0.00"))</span>
+                    }
+                </td>
+                <td>
+                    <span class="badge" style="background: @statusColor; padding: 4px 8px;">@x.Status</span>
+                </td>
+                <td style="white-space: nowrap;">
+                    <button data-get="/Appointment/Detail/@x.Id">QR &amp; Details</button>
+                    @if (x.Status == "Pending" || x.Status == "Confirmed")
+                    {
+                        <form method="post" action="/Appointment/Cancel/@x.Id" style="display: inline;" onsubmit="return confirm('Cancel appointment #@x.Id?');">
+                            <button type="submit">Cancel</button>
+                        </form>
+                    }
+                    @if (x.Status == "Completed" && x.Review == null)
+                    {
+                        <button data-get="/Review/Insert?appointmentId=@x.Id" style="background: #28a745; color: #fff;">⭐ Leave Review (+10 pts)</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-top: 15px;">
+    @Html.PagedListPager(Model, p => $"?status={currentStatus}&page={p}")
+</div>

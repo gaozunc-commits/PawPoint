@@ -1,0 +1,378 @@
+/* Font ----------------------------------------------------------------------- */
+
+body, input, select, textarea, button {
+    font: 15px 'Roboto', Calibri, sans-serif;
+    color: #333;
+}
+
+/* Layout --------------------------------------------------------------------- */
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    grid: auto auto 1fr auto / auto;
+    background-color: #fcfcfc;
+}
+
+header, 
+footer {
+    background: #343a40;
+    color: #fff;
+    padding: 12px 40px;
+}
+
+header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header h1 {
+    flex: 1;
+    margin: 0;
+    padding-left: 42px;
+    background: url(/images/favicon.png) no-repeat left center / 32px;
+    font-size: 24px;
+}
+
+header a {
+    color: inherit;
+    text-decoration: none;
+}
+
+header img {
+    width: 38px;
+    height: 38px;
+    border: 1px solid #777;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+nav {
+    background: #495057;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+nav a {
+    background: #495057;
+    color: #f8f9fa;
+    text-decoration: none;
+    padding: 10px 14px;
+    white-space: nowrap;
+    transition: background 0.2s;
+    font-size: 14px;
+}
+
+nav a:hover {
+    background: #212529;
+}
+
+nav b {
+    padding: 10px 14px;
+    white-space: nowrap;
+}
+
+nav div {
+    flex: 1;
+}
+
+main {
+    padding: 25px 40px;
+}
+
+main h1 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #212529;
+    font-size: 26px;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+}
+
+footer {
+    font-size: 13px;
+    text-align: center;
+    background: #212529;
+    color: #adb5bd;
+    padding: 15px;
+}
+
+/* Button & Form Controls ---------------------------------------------------- */
+
+button, input[type="submit"], input[type="reset"] {
+    background: #007bff;
+    color: #fff;
+    border: 1px solid #0069d9;
+    border-radius: 4px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.15s ease-in-out;
+}
+
+button:hover, input[type="submit"]:hover {
+    background: #0056b3;
+}
+
+button[type="reset"], button.secondary {
+    background: #6c757d;
+    border-color: #545b62;
+}
+
+button[type="reset"]:hover {
+    background: #5a6268;
+}
+
+input, select, textarea {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 6px 10px;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Table ---------------------------------------------------------------------- */
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.table th, 
+.table td {
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.table th {
+    background: #343a40;
+    color: #fff;
+    font-weight: 600;
+}
+
+.table tr:nth-child(even) td {
+    background: #f8f9fa;
+}
+
+.table tr:hover td {
+    background: #e9ecef;
+}
+
+.detail th {
+    text-align: left;
+    background: #f1f3f5;
+    color: #333;
+    width: 160px;
+}
+
+.table th a {
+    color: inherit;
+    display: block;
+    text-decoration: none;
+}
+
+.table th a.asc::after {
+    content: ' ▴';
+}
+
+.table th a.des::after {
+    content: ' ▾';
+}
+
+.table tr:has(input:checked) td {
+    background: #ffeeba;
+}
+
+.table td:first-child,
+.table td:last-child {
+    position: relative;
+}
+
+.table .popup {
+    background: #fff;
+    border: inherit;
+    padding: inherit;
+    position: absolute;
+    z-index: 100;
+    white-space: nowrap;
+    top: 50%;
+    left: 100%;
+    transform: translate(10px, -50%);
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.table img.popup {
+    padding: 0;
+}
+
+.table tr:hover .popup {
+    display: block;
+}
+
+/* Pager ---------------------------------------------------------------------- */
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    gap: 4px;
+    margin: 15px 0;
+}
+
+.pagination a,
+.pagination span {
+    background: #fff !important;
+    color: #007bff !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 6px 12px;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.pagination a:hover,
+.pagination span:hover {
+    background: #e9ecef !important;
+}
+
+.pagination .active a,
+.pagination .active span {
+    background: #007bff !important;
+    color: #fff !important;
+    border-color: #007bff !important;
+}
+
+.pagination .disabled a,
+.pagination .disabled span {
+    background: #f8f9fa !important;
+    color: #6c757d !important;
+    cursor: not-allowed;
+}
+
+/* Flash Message -------------------------------------------------------------- */
+
+.info {
+    position: fixed;
+    background: #343a40;
+    color: #fff;
+    border: 1px solid #212529;
+    border-radius: 6px;
+    padding: 12px 24px;
+    max-width: 550px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    top: -100px;
+    opacity: 0;
+    z-index: 99999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    text-align: center;
+}
+
+.info:not(:empty) {
+    animation: fade 5s ease-in-out;
+}
+
+@keyframes fade {
+      0% { top: -100px; opacity: 0; }
+     10% { top:   30px; opacity: 1; }
+     90% { top:   30px; opacity: 1; }
+    100% { top: -100px; opacity: 0; }
+}
+
+/* Form ----------------------------------------------------------------------- */
+
+label > * {
+    vertical-align: text-top;
+}
+
+.form {
+    display: grid;
+    grid: auto / 160px 1fr auto;
+    gap: 8px 12px;
+    place-content: start;
+    place-items: center start;
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.form > label:not(:has(*)) {
+    background: #f1f3f5;
+    font-weight: 600;
+    padding: 6px 10px;
+    place-self: stretch;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.form > section,
+.validation-summary-valid,
+.validation-summary-errors {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.validation-summary-valid ul,
+.validation-summary-errors ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.field-validation-error,
+.validation-summary-errors {
+    color: #dc3545;
+    font-size: 13px;
+}
+
+/* Photo Upload --------------------------------------------------------------- */
+
+.upload img {
+    display: block;
+    border: 1px solid #ced4da;
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* Badge ---------------------------------------------------------------------- */
+
+.badge {
+    display: inline-block;
+    background-color: #6c757d;
+    color: #fff;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Checkbox List Component ---------------------------------------------------- */
+
+.checkbox-list {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
